@@ -10,12 +10,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
-import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.redis.inbound.RedisQueueMessageDrivenEndpoint;
 
 @Configuration
-@EnableIntegration
 public class RedisConfig {
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
@@ -27,10 +23,10 @@ public class RedisConfig {
         redisMessageListenerContainer.addMessageListener(messageListenerAdapter, topic());
         return redisMessageListenerContainer;
     }
-
+    @Autowired OrderMessageSubscriber orderMessageSubscriber;
     @Bean
     MessageListenerAdapter messageListenerAdapter(){
-        return new MessageListenerAdapter(new OrderMessageSubscriber(), "onMessage");
+        return new MessageListenerAdapter(orderMessageSubscriber, "onMessage");
     }
 
     @Bean
@@ -44,18 +40,6 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setValueSerializer(new GenericToStringSerializer<Object>(Object.class));
         return redisTemplate;
-    }
-
-    @Bean
-    public DirectChannel receiverChannnl() {
-        return new DirectChannel();
-    }
-
-    @Bean
-    public RedisQueueMessageDrivenEndpoint consumerEndPoint() {
-        RedisQueueMessageDrivenEndpoint endpoint = new RedisQueueMessageDrivenEndpoint("Redis-Queue", redisConnectionFactory);
-        endpoint.setOutputChannelName("receiverChannel");
-        return endpoint;
     }
 
 }

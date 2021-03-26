@@ -1,5 +1,7 @@
 package com.example.tstradeengine.model;
 
+import javax.persistence.*;
+
 
 public class Order {
     private long id;
@@ -9,17 +11,19 @@ public class Order {
     private int quantity;
     private long clientId;
     private boolean isValid;
+    private int strategy;
 
     public Order() {
     }
 
-    public Order(String product, String side, Double price, int quantity, long clientId, boolean isValid) {
+    public Order(String product, String side, Double price, int quantity, long clientId, boolean isValid, int strategy) {
         this.product = product;
         this.side = side;
         this.price = price;
         this.quantity = quantity;
         this.clientId = clientId;
         this.isValid = isValid;
+        this.strategy = strategy;
     }
 
     public long getId() {
@@ -78,6 +82,14 @@ public class Order {
         isValid = valid;
     }
 
+    public int getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(int strategy) {
+        this.strategy = strategy;
+    }
+
     @Override
     public String toString() {
         return "***Order{" +
@@ -88,6 +100,7 @@ public class Order {
                 ", quantity=" + quantity +
                 ", clientId=" + clientId +
                 ", isValid=" + isValid +
+                ", strategy=" + strategy +
                 "}***";
     }
 }
