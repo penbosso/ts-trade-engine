@@ -2,7 +2,6 @@ package com.example.tstradeengine;
 
 import com.example.tstradeengine.model.*;
 import com.example.tstradeengine.service.TradeEngineService;
-import com.example.tstradeengine.stratedy.TradeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import org.springframework.web.reactive.function.client.WebClient;
+import redis.clients.jedis.Jedis;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
@@ -30,6 +29,8 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 @RestController
 public class TsTradeEngineApplication {
+    String subscriberUrl = "https://9ffca8d7b7b9.ngrok.io/mdsubscription";
+
     @Value("${spring.redis.host}")
     private String HOST;
     @Value("${spring.redis.port}")
@@ -39,13 +40,20 @@ public class TsTradeEngineApplication {
     private final Logger log = LoggerFactory.getLogger(TsTradeEngineApplication.class);
 
     @Bean
+    public Jedis getJedis() {
+        Jedis jedis = new Jedis( HOST, PORT,0);
+        jedis.auth(PASSWORD);
+        return jedis;
+    }
+
+    @Bean
     public RestTemplate getRestTemplate() {
         return new RestTemplate();
     }
 
     @Bean
-    public JedisPool getJedisPool() {
-        return new JedisPool(new JedisPoolConfig(), HOST, PORT, 10000, PASSWORD);
+    public WebClient.Builder getWebClient() {
+        return WebClient.builder();
     }
 
     @Autowired
@@ -93,7 +101,10 @@ public class TsTradeEngineApplication {
             marketData.setExchangeUrl(exchangeDataUrl);
             // calculating change in price
             MarketData prevMarketData = MarketDataList.getMarketDataListByTickerAndUrl(marketData.getTICKER(), exchangeDataUrl);
-            marketData.setChangeInPrice( marketData.getLAST_TRADED_PRICE() - prevMarketData.getLAST_TRADED_PRICE());
+            // none zero change in price only
+            if(marketData.getLAST_TRADED_PRICE() - prevMarketData.getLAST_TRADED_PRICE() !=0) {
+                marketData.setChangeInPrice( marketData.getLAST_TRADED_PRICE() - prevMarketData.getLAST_TRADED_PRICE());
+            }
             System.out.println("+====Change in price for "+marketData.getTICKER()+" : ==="+marketData.getChangeInPrice()+"========");
             return marketData;
         }).collect(Collectors.toList());
@@ -111,8 +122,7 @@ public class TsTradeEngineApplication {
         log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         log.info("^^^^Del subscription^^^^");
         log.info("^^^^subscription^^^^");
-        String subscriberUrl = "https://41a5f5e26552.ngrok.io/mdsubscription";
-        log.info("^^^^get initial deata^^^^");
+        log.info("^^^^get initial data^^^^");
         for (Exchange exchange : exchangeList) {
             if (exchange.isEnable()) {
                 MarketDataList.merchData(getMarketDataList(exchange.getUrl()), exchange.getUrl());

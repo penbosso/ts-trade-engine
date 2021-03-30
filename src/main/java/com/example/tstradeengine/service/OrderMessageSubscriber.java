@@ -27,7 +27,7 @@ public class OrderMessageSubscriber implements MessageListener {
         try {
             Order order = objectMapper.readValue(message.toString(), Order.class);
            // give the order to trade engine
-            tradeEngineService.tradeOrder(order);
+            if(order.isValid()) tradeEngineService.tradeOrder(order);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -92,4 +92,23 @@ public class EngineQueueItem {
         this.isValid = order.isValid();
         this.strategy = order.getStrategy();
     }
+
+    @Override
+    public String toString() {
+        return "EngineQueueItem{" +
+                "id=" + id +
+                ", patience=" + patience +
+                ", signal=" + signal +
+                ", status='" + status + '\'' +
+                ", exchangeUrl='" + exchangeUrl + '\'' +
+                ", orderId=" + orderId +
+                ", product='" + product + '\'' +
+                ", side='" + side + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", clientId=" + clientId +
+                ", isValid=" + isValid +
+                ", strategy=" + strategy +
+                '}';
+    }
 }
