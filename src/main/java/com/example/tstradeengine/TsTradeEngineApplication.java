@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 @RestController
 public class TsTradeEngineApplication {
-    String subscriberUrl = "https://9ffca8d7b7b9.ngrok.io/mdsubscription";
+    String subscriberUrl = "https://ts-trade-engine.herokuapp.com/mdsubscription";
 
     @Value("${spring.redis.host}")
     private String HOST;
@@ -117,8 +117,8 @@ public class TsTradeEngineApplication {
     public void onStartApp() {
         // sample
         List<Exchange> exchangeList = new ArrayList<Exchange>();
-        exchangeList.add(new Exchange(1, "https://exchange.matraining.com", true));
-        exchangeList.add(new Exchange(2, "https://exchange2.matraining.com", true));
+        exchangeList.add(new Exchange(1, "https://exchange.matraining.com", false));
+        exchangeList.add(new Exchange(2, "https://exchange2.matraining.com", false));
         log.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         log.info("^^^^Del subscription^^^^");
         log.info("^^^^subscription^^^^");
